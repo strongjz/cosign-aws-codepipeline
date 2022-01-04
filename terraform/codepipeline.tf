@@ -47,8 +47,7 @@ resource "aws_iam_role_policy" "codepipeline_policy" {
       "Effect": "Allow",
       "Action": [
         "codebuild:*",
-        "codecommit:*",
-        "eks:*"
+        "codecommit:*"
       ],
       "Resource": "*"
     }

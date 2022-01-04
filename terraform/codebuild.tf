@@ -39,7 +39,7 @@ resource "aws_iam_role_policy" "codebuild" {
         "logs:CreateLogStream",
         "logs:PutLogEvents",
         "sts:AssumeRole",
-        "codebuild:*",
+        "codebuild:*"
       ]
     },
     {

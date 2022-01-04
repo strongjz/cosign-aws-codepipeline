@@ -1,17 +1,17 @@
 REGISTRY ?= strongjz
-NAME=cosign-aws
+NAME ?=cosign-aws
 IMAGE ?= distroless-base
 GOLANG_VERSION ?= 1.17.2
 AWS_REGION ?= us-west-2
 AWS_DEFAULT_REGION ?= us-west-2
 REPO_INFO ?= $(shell git config --get remote.origin.url)
 COMMIT_SHA ?= git-$(shell git rev-parse --short HEAD)
-ACCOUNT_ID ?=$(shell aws sts get-caller-identity --query Account --output text)
+CODEBUILD_ROLE_NAME ?= "$(NAME)-codebuild"
 
 export
 
 aws_account:
-	echo ${ACCOUNT_ID}
+	aws sts get-caller-identity --query Account --output text
 
 docker_build:
 	docker build -t $(shell aws sts get-caller-identity --query Account --output text).dkr.ecr.$(AWS_REGION).amazonaws.com/$(IMAGE):$(VERSION) .
