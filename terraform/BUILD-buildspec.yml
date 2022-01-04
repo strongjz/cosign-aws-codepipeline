@@ -5,8 +5,10 @@ phases:
   install:
     commands:
       - yum update -y && yum -y install curl jq python3-pip python3-dev golang && pip3 install --upgrade awscli
-      - go install github.com/sigstore/cosign/cmd/cosign@latest
       - export PATH=$PWD/:$PATH
+      - export PATH=$PATH:/usr/local/go/bin
+      - go version
+      - go install github.com/sigstore/cosign/cmd/cosign@latest
 
   pre_build:
     commands:
