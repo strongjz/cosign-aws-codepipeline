@@ -4,15 +4,18 @@ version: 0.2
 phases:
   install:
     commands:
-      - yum update -y && yum -y install curl jq python3-pip python3-dev golang && pip3 install --upgrade awscli
+      - yum update -y && yum -y install curl jq python3-pip python3-dev && pip3 install --upgrade awscli
+      - curl -o go1.17.5.linux-amd64.tar.gz https://go.dev/dl/go1.17.5.linux-amd64.tar.gz -vvv -L
+      - rm -rf /usr/local/go && tar -C /usr/local -xzf go1.17.5.linux-amd64.tar.gz
       - export PATH=$PWD/:$PATH
       - export PATH=$PATH:/usr/local/go/bin
       - go version
-      - go install github.com/sigstore/cosign/cmd/cosign
+      - go install github.com/sigstore/cosign/cmd/cosign@latest
 
   pre_build:
     commands:
       - TAG="$REPOSITORY_NAME.$REPOSITORY_BRANCH.$ENVIRONMENT_NAME.$(date +%Y-%m-%d.%H.%M.%S).$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | head -c 8)"
+      - CREDENTIALS=$(aws sts assume-role --role-arn arn:aws:iam::$ACCOUNT_ID:role/$CODEBUILD_ROLE_NAME  --role-session-name codebuild-kubectl --duration-seconds 900)
       - export AWS_ACCESS_KEY_ID="$(echo ${CREDENTIALS} | jq -r '.Credentials.AccessKeyId')"
       - export AWS_SECRET_ACCESS_KEY="$(echo ${CREDENTIALS} | jq -r '.Credentials.SecretAccessKey')"
       - export AWS_SESSION_TOKEN="$(echo ${CREDENTIALS} | jq -r '.Credentials.SessionToken')"
