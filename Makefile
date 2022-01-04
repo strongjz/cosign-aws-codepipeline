@@ -7,11 +7,11 @@ AWS_DEFAULT_REGION ?= us-west-2
 REPO_INFO ?= $(shell git config --get remote.origin.url)
 COMMIT_SHA ?= git-$(shell git rev-parse --short HEAD)
 CODEBUILD_ROLE_NAME ?= "$(NAME)-codebuild"
-
+ACCOUNT_ID ?= $(shell aws sts get-caller-identity --query Account --output text)
 export
 
 aws_account:
-	aws sts get-caller-identity --query Account --output text
+	echo $(ACCOUNT_ID)
 
 docker_build:
 	docker build -t $(shell aws sts get-caller-identity --query Account --output text).dkr.ecr.$(AWS_REGION).amazonaws.com/$(IMAGE):$(VERSION) .
