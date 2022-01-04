@@ -8,7 +8,8 @@ phases:
       - curl -o go1.17.5.linux-amd64.tar.gz https://go.dev/dl/go1.17.5.linux-amd64.tar.gz -vvv -L
       - rm -rf /usr/local/go && tar -C /usr/local -xzf go1.17.5.linux-amd64.tar.gz
       - export PATH=$PWD/:$PATH
-      - export PATH=$PATH:/usr/local/go/bin
+      - export PATH=/usr/local/go/bin:$PATH
+      - which -a go
       - go version
       - go install github.com/sigstore/cosign/cmd/cosign@latest
 
