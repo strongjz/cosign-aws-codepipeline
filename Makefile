@@ -20,7 +20,7 @@ ecr_auth:
 	$(shell aws ecr get-login --no-include-email)
 
 docker_push: ecr_auth docker_build
-	docker push $(ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(IMAGE):$(VERSION)
+	docker push $(shell aws sts get-caller-identity --query Account --output text).dkr.ecr.$(AWS_REGION).amazonaws.com/$(IMAGE):$(VERSION)
 
 ecr_scan:
 	aws ecr start-image-scan --repository-name $(IMAGE) --image-id imageTag=$(VERSION)
@@ -29,7 +29,7 @@ ecr_scan_findings:
 	aws ecr describe-image-scan-findings --repository-name $(IMAGE) --image-id imageTag=$(VERSION)
 
 docker_run:
-	docker run -it --rm $(ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(IMAGE):$(VERSION)
+	docker run -it --rm $(shell aws sts get-caller-identity --query Account --output text).dkr.ecr.$(AWS_REGION).amazonaws.com/$(IMAGE):$(VERSION)
 
 check:
 	terraform -v  >/dev/null 2>&1 || echo "Terraform not installed" || exit 1 && \

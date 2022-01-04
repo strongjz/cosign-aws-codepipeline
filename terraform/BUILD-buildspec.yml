@@ -5,6 +5,7 @@ phases:
   install:
     commands:
       - yum update -y && yum -y install curl jq python3-pip python3-dev && pip3 install --upgrade awscli
+      - go install github.com/sigstore/cosign/cmd/cosign@latest
       - export PATH=$PWD/:$PATH
 
   pre_build:

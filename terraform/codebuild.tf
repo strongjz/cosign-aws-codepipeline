@@ -59,6 +59,8 @@ resource "aws_iam_role_policy" "codebuild" {
 POLICY
 }
 
+data "aws_caller_identity" "current" {}
+
 resource "aws_codebuild_project" "codebuild-BUILD" {
   name          = "${var.name}-codebuild-BUILD"
   description   = "${var.name}-codebuild-BUILD"
@@ -78,8 +80,8 @@ resource "aws_codebuild_project" "codebuild-BUILD" {
 
     environment_variable {
       name  = "ACCOUNT_ID"
-      value = "ACCOUNT_ID"
-      type  = "PARAMETER_STORE"
+      value = data.aws_caller_identity.current.account_id
+      type  = "PLAINTEXT"
     }
   }
 
