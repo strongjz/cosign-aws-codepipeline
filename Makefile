@@ -59,3 +59,4 @@ tf_apply:
 tf_destroy:
 	cd terraform/ && \
 	terraform destroy
+

@@ -8,7 +8,7 @@ phases:
       - export PATH=$PWD/:$PATH
       - export PATH=$PATH:/usr/local/go/bin
       - go version
-      - go install github.com/sigstore/cosign/cmd/cosign@latest
+      - go install github.com/sigstore/cosign/cmd/cosign
 
   pre_build:
     commands:

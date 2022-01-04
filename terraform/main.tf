@@ -11,3 +11,13 @@ resource "aws_ecr_repository" "ecr" {
   }
 }
 
+resource "aws_kms_key" "cosign" {
+  description             = "Cosign Key"
+  deletion_window_in_days = 10
+  tags = {}
+}
+
+resource "aws_kms_alias" "a" {
+  name          = "alias/${var.name}"
+  target_key_id = aws_kms_key.cosign.key_id
+}
