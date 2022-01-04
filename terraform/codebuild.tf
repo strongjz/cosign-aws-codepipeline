@@ -83,6 +83,11 @@ resource "aws_codebuild_project" "codebuild-BUILD" {
       value = data.aws_caller_identity.current.account_id
       type  = "PLAINTEXT"
     }
+
+    environment_variable {
+      name  = "COSIGN_ROLE_NAME"
+      value = aws_iam_role.codebuild.name
+    }
   }
 
   logs_config {
