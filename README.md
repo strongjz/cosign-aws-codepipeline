@@ -21,7 +21,11 @@ Create an S3 bucket for Terraform remote state storage, this will have to be uni
 
 `aws s3 mb s3://cosign-aws-codepipeline`
 
-Create the terraform plan 
+Initailize Terraform 
+
+`make tf_init`
+
+Create the Terraform plan 
 
 `make tf_plan`
 
@@ -36,4 +40,5 @@ Push this code repo to the AWS Codecommit repo by creating a new remote
 `git push aws main`
 
 This should kick off the codepipeline and codebuild Terraform creates
+
 
