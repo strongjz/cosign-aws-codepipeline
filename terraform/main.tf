@@ -1,3 +1,9 @@
+resource "aws_codecommit_repository" "cosign" {
+  repository_name = "${var.name}-repo"
+  default_branch = "main"
+  description     = "This is the Sample App Repository for ${var.name}"
+}
+
 resource "aws_ecr_repository" "ecr" {
   name                 = "distroless-base"
   image_tag_mutability = "IMMUTABLE"

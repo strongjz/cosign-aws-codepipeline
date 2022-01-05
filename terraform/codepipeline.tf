@@ -56,12 +56,6 @@ resource "aws_iam_role_policy" "codepipeline_policy" {
 EOF
 }
 
-resource "aws_codecommit_repository" "devsecops" {
-  repository_name = "${var.name}-repo"
-  default_branch = "main"
-  description     = "This is the Sample App Repository for ${var.name}"
-}
-
 resource "aws_codepipeline" "codepipeline" {
   name     = "${var.name}-pipeline"
   role_arn = aws_iam_role.codepipeline_role.arn
@@ -85,8 +79,8 @@ resource "aws_codepipeline" "codepipeline" {
       "source_output"]
 
       configuration = {
-        BranchName = aws_codecommit_repository.devsecops.default_branch
-        RepositoryName = aws_codecommit_repository.devsecops.repository_name
+        BranchName = aws_codecommit_repository.cosign.default_branch
+        RepositoryName = aws_codecommit_repository.cosign.repository_name
       }
     }
   }
