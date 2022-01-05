@@ -15,4 +15,25 @@ Terraform creates all the AWS Resources necessary to run the Codepipeline.
   * S3 Bucket
   * Cloudwatch Log Group and Steam
 * ECR - Container Repository
-* KMS - Asymetric key used for cosign key signing
+* KMS - Asymmetric key used for cosign key signing
+
+Create an S3 bucket for Terraform remote state storage, this will have to be unique. 
+
+`aws s3 mb s3://cosign-aws-codepipeline`
+
+Create the terraform plan 
+
+`make tf_plan`
+
+Apply the changes 
+
+`make tf_apply`
+
+Push this code repo to the AWS Codecommit repo by creating a new remote
+
+`git remote add aws $AWS_CODE_COMMIT_REPO`
+
+`git push aws main`
+
+This should kick off the codepipeline and codebuild Terraform creates
+
