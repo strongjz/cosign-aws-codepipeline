@@ -21,7 +21,7 @@ Create an S3 bucket for Terraform remote state storage, this will have to be uni
 
 `aws s3 mb s3://cosign-aws-codepipeline`
 
-Initailize Terraform 
+Initialize Terraform 
 
 `make tf_init`
 

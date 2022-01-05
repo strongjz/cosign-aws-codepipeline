@@ -69,3 +69,4 @@ key_gen:
 
 verify: key_gen
 	cosign verify --key cosign.pub $(shell aws sts get-caller-identity --query Account --output text).dkr.ecr.$(AWS_REGION).amazonaws.com/$(IMAGE):$(VERSION)
+
