@@ -42,6 +42,15 @@ resource "aws_iam_role_policy" "codebuild" {
         "codebuild:*"
       ]
     },
+{
+      "Effect": "Allow",
+      "Resource": [
+        "${aws_ecr_repository.ecr.arn}"
+      ],
+      "Action": [
+        "ecr:*"
+      ]
+    },
     {
       "Effect": "Allow",
       "Action": [
