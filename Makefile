@@ -8,6 +8,7 @@ REPO_INFO ?= $(shell git config --get remote.origin.url)
 COMMIT_SHA ?= git-$(shell git rev-parse --short HEAD)
 COSIGN_ROLE_NAME ?= "$(NAME)-codebuild"
 ACCOUNT_ID ?= $(shell aws sts get-caller-identity --query Account --output text)
+
 export
 
 aws_account:
