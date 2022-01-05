@@ -23,7 +23,7 @@ phases:
       - $(aws ecr get-login --no-include-email)
   build:
     commands:
-      - make docker_build
+      - make docker_build VERSION=$CODEBUILD_RESOLVED_SOURCE_VERSION
 
   post_build:
     commands:
@@ -32,6 +32,8 @@ phases:
       - export AWS_SECRET_ACCESS_KEY="$(echo ${CREDENTIALS} | jq -r '.Credentials.SecretAccessKey')"
       - export AWS_SESSION_TOKEN="$(echo ${CREDENTIALS} | jq -r '.Credentials.SessionToken')"
       - export AWS_EXPIRATION=$(echo ${CREDENTIALS} | jq -r '.Credentials.Expiration')
-      - make docker_push
+      - make docker_push VERSION=$CODEBUILD_RESOLVED_SOURCE_VERSION
+      - make sign VERSION=$CODEBUILD_RESOLVED_SOURCE_VERSION
+      - make verify VERSION=$CODEBUILD_RESOLVED_SOURCE_VERSION
 artifacts:
   files: build.json

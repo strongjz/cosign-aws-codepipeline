@@ -1,6 +1,6 @@
-REGISTRY ?= strongjz
 NAME ?=cosign-aws
 IMAGE ?= distroless-base
+VERSION ?= 0.0.0
 GOLANG_VERSION ?= 1.17.2
 AWS_REGION ?= us-west-2
 AWS_DEFAULT_REGION ?= us-west-2
@@ -17,9 +17,9 @@ docker_build:
 	docker build -t $(shell aws sts get-caller-identity --query Account --output text).dkr.ecr.$(AWS_REGION).amazonaws.com/$(IMAGE):$(VERSION) .
 
 ecr_auth:
-	$(shell aws ecr get-login --no-include-email)
+	aws ecr get-login-password --region $(AWS_REGION) | docker login --username AWS --password-stdin $(shell aws sts get-caller-identity --query Account --output text).dkr.ecr.$(AWS_REGION).amazonaws.com
 
-docker_push: ecr_auth docker_build
+docker_push: ecr_auth
 	docker push $(shell aws sts get-caller-identity --query Account --output text).dkr.ecr.$(AWS_REGION).amazonaws.com/$(IMAGE):$(VERSION)
 
 ecr_scan:
@@ -60,3 +60,11 @@ tf_destroy:
 	cd terraform/ && \
 	terraform destroy
 
+sign:
+	cosign sign --key awskms:///alias/$(NAME) $(shell aws sts get-caller-identity --query Account --output text).dkr.ecr.$(AWS_REGION).amazonaws.com/$(IMAGE):$(VERSION)
+
+key_gen:
+	cosign generate-key-pair --kms awskms:///alias/$(NAME) $(shell aws sts get-caller-identity --query Account --output text).dkr.ecr.$(AWS_REGION).amazonaws.com/$(IMAGE):$(VERSION)
+
+verify: key_gen
+	cosign verify --key cosign.pub $(shell aws sts get-caller-identity --query Account --output text).dkr.ecr.$(AWS_REGION).amazonaws.com/$(IMAGE):$(VERSION)

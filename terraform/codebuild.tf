@@ -53,6 +53,15 @@ resource "aws_iam_role_policy" "codebuild" {
         "${aws_s3_bucket.codepipeline_bucket.arn}",
         "${aws_s3_bucket.codepipeline_bucket.arn}/*"
       ]
+    },
+    {
+      "Effect": "Allow",
+      "Resource": [
+        "${aws_kms_key.cosign.arn}"
+      ],
+      "Action": [
+        "kms:*"
+      ]
     }
   ]
 }
