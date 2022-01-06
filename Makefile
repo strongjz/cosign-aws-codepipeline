@@ -11,18 +11,19 @@ ACCOUNT_ID ?= $(shell aws sts get-caller-identity --query Account --output text)
 
 export
 
+.PHONY: aws_account
 aws_account:
-	echo $(ACCOUNT_ID)
+	$(ACCOUNT_ID)
 
 docker_build:
-	docker build -t $(shell aws sts get-caller-identity --query Account --output text).dkr.ecr.$(AWS_REGION).amazonaws.com/$(IMAGE):$(VERSION) .
+	docker build -t $(ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(IMAGE):$(VERSION) .
 
 .SILENT: ecr_auth
 ecr_auth:
-	docker login --username AWS -p $(shell aws ecr get-login-password --region $(AWS_REGION) ) $(shell aws sts get-caller-identity --query Account --output text).dkr.ecr.$(AWS_REGION).amazonaws.com
+	docker login --username AWS -p $(shell aws ecr get-login-password --region $(AWS_REGION) ) $(ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com
 
 docker_push: ecr_auth
-	docker push $(shell aws sts get-caller-identity --query Account --output text).dkr.ecr.$(AWS_REGION).amazonaws.com/$(IMAGE):$(VERSION)
+	docker push $(ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(IMAGE):$(VERSION)
 
 ecr_scan:
 	aws ecr start-image-scan --repository-name $(IMAGE) --image-id imageTag=$(VERSION)
@@ -31,7 +32,7 @@ ecr_scan_findings:
 	aws ecr describe-image-scan-findings --repository-name $(IMAGE) --image-id imageTag=$(VERSION)
 
 docker_run:
-	docker run -it --rm $(shell aws sts get-caller-identity --query Account --output text).dkr.ecr.$(AWS_REGION).amazonaws.com/$(IMAGE):$(VERSION)
+	docker run -it --rm $(ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(IMAGE):$(VERSION)
 
 check:
 	terraform -v  >/dev/null 2>&1 || echo "Terraform not installed" || exit 1 && \
@@ -63,11 +64,11 @@ tf_destroy:
 	terraform destroy
 
 sign:
-	cosign sign --key awskms:///alias/$(NAME) $(shell aws sts get-caller-identity --query Account --output text).dkr.ecr.$(AWS_REGION).amazonaws.com/$(IMAGE):$(VERSION)
+	cosign sign --key awskms:///alias/$(NAME) $(ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(IMAGE):$(VERSION)
 
 key_gen:
-	cosign generate-key-pair --kms awskms:///alias/$(NAME) $(shell aws sts get-caller-identity --query Account --output text).dkr.ecr.$(AWS_REGION).amazonaws.com/$(IMAGE):$(VERSION)
+	cosign generate-key-pair --kms awskms:///alias/$(NAME) $(ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(IMAGE):$(VERSION)
 
 verify: key_gen
-	cosign verify --key cosign.pub $(shell aws sts get-caller-identity --query Account --output text).dkr.ecr.$(AWS_REGION).amazonaws.com/$(IMAGE):$(VERSION)
+	cosign verify --key cosign.pub $(ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(IMAGE):$(VERSION)
 
