@@ -1,6 +1,6 @@
 NAME ?=cosign-aws
 IMAGE ?= distroless-base
-VERSION ?= 0.0.0
+VERSION ?= 0.0.1
 GOLANG_VERSION ?= 1.17.2
 AWS_REGION ?= us-west-2
 AWS_DEFAULT_REGION ?= us-west-2
@@ -15,14 +15,19 @@ export
 aws_account:
 	$(ACCOUNT_ID)
 
+docker_multiarch_build:
+	 docker buildx build \
+ 	--push \
+    --platform linux/amd64 -t $(ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(IMAGE):$(VERSION) .
+
 docker_build:
-	docker build -t $(ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(IMAGE):$(VERSION) .
+	 docker build -t $(ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(IMAGE):$(VERSION) .
 
 .SILENT: ecr_auth
 ecr_auth:
 	docker login --username AWS -p $(shell aws ecr get-login-password --region $(AWS_REGION) ) $(ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com
 
-docker_push: ecr_auth
+docker_push:
 	docker push $(ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(IMAGE):$(VERSION)
 
 ecr_scan:
@@ -64,11 +69,11 @@ tf_destroy:
 	terraform destroy
 
 sign:
-	cosign sign --key awskms:///alias/$(NAME) $(ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(IMAGE):$(VERSION)
+	cosign sign --key awskms:///alias/cosign-aws $(ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(IMAGE):$(VERSION)
 
 key_gen:
-	cosign generate-key-pair --kms awskms:///alias/$(NAME) $(ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(IMAGE):$(VERSION)
+	cosign generate-key-pair --kms awskms:///alias/cosign-aws $(ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(IMAGE):$(VERSION)
 
-verify: key_gen
+verify:
 	cosign verify --key cosign.pub $(ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(IMAGE):$(VERSION)
 

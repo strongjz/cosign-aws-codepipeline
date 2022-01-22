@@ -1,10 +1,10 @@
 resource "aws_s3_bucket" "codepipeline_bucket" {
-  bucket = "${var.name}-devsecops-code"
+  bucket = "${var.name}-cp"
   acl    = "private"
 }
 
 resource "aws_iam_role" "codepipeline_role" {
-  name = "${var.name}-test-role"
+  name = "${var.name}-cp-role"
 
   assume_role_policy = <<EOF
 {

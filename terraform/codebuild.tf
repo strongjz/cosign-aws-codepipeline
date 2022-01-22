@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "codebuild_s3" {
-  bucket = "${var.name}-codebuild"
+  bucket = "${var.name}-cb"
   acl    = "private"
 }
 
