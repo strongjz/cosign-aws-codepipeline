@@ -1,6 +1,6 @@
 NAME ?=cosign-aws
 IMAGE ?= distroless-base
-VERSION ?= 0.0.1
+VERSION ?= 0.0.3
 GOLANG_VERSION ?= 1.17.2
 AWS_REGION ?= us-west-2
 AWS_DEFAULT_REGION ?= us-west-2
@@ -8,6 +8,7 @@ REPO_INFO ?= $(shell git config --get remote.origin.url)
 COMMIT_SHA ?= git-$(shell git rev-parse --short HEAD)
 COSIGN_ROLE_NAME ?= "$(NAME)-codebuild"
 ACCOUNT_ID ?= $(shell aws sts get-caller-identity --query Account --output text)
+AWS_SDK_LOAD_CONFIG="true"
 
 export
 
@@ -18,7 +19,7 @@ aws_account:
 docker_multiarch_build:
 	 docker buildx build \
  	--push \
-    --platform linux/amd64 -t $(ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(IMAGE):$(VERSION) .
+    --platform linux/amd64,linux/arm64 -t $(ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(IMAGE):$(VERSION) .
 
 docker_build:
 	 docker build -t $(ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(IMAGE):$(VERSION) .
@@ -37,7 +38,7 @@ ecr_scan_findings:
 	aws ecr describe-image-scan-findings --repository-name $(IMAGE) --image-id imageTag=$(VERSION)
 
 docker_run:
-	docker run -it --rm $(ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(IMAGE):$(VERSION)
+	docker run -it --platform $(PLATFORM) --rm $(ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(IMAGE):$(VERSION)
 
 check:
 	terraform -v  >/dev/null 2>&1 || echo "Terraform not installed" || exit 1 && \
@@ -68,12 +69,12 @@ tf_destroy:
 	cd terraform/ && \
 	terraform destroy
 
-sign:
-	cosign sign --key awskms:///alias/cosign-aws $(ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(IMAGE):$(VERSION)
+sign: ecr_auth
+	cosign sign --key awskms:///alias/$(NAME) $(ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(IMAGE):$(VERSION)
 
 key_gen:
-	cosign generate-key-pair --kms awskms:///alias/cosign-aws $(ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(IMAGE):$(VERSION)
+	cosign generate-key-pair --kms awskms:///alias/$(NAME) $(ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(IMAGE):$(VERSION)
 
-verify:
+verify: ecr_auth
 	cosign verify --key cosign.pub $(ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com/$(IMAGE):$(VERSION)
 
